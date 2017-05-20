@@ -1,6 +1,9 @@
 var path = require('path')
 var menubar = require('menubar')
 
+var protos = require('./protos/remotecontrolmessages_pb.js')
+var requestConnect = protos.RequestConnect()
+
 var mb = menubar({
   dir: __dirname,
   icon: path.join(__dirname, 'images', 'clementine.png'),

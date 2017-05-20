@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "google-protobuf": "^3.3.0",
     "menubar": "^5.2.3"
   },
   "name": "clementine-menubar",
