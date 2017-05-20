@@ -3,16 +3,14 @@ var menubar = require('menubar')
 
 var protos = require('./protos/remotecontrolmessages_pb.js')
 var message = new protos.Message()
-var requestConnect = new protos.RequestConnect()
 message.setType(protos.MsgType.CONNECT)
-// message.setRequestConnect(requestConnect)
 
 // Connect Clementine Remote
-var net = require('net');
+var net = require('net')
 
-var client = new net.Socket();
+var client = new net.Socket()
 client.connect(5500, '127.0.0.1', function() {
-  console.log('Connected');
+  console.log('Connected')
   var message_buffer = Buffer.from(message.serializeBinary())
   var length_buffer = Buffer.allocUnsafe(4)
   length_buffer.writeUInt32BE(message_buffer.length)
@@ -20,38 +18,46 @@ client.connect(5500, '127.0.0.1', function() {
   client.write(Buffer.concat([length_buffer, message_buffer]))
 
   // Sent play/pause every 5 seconds
-  setInterval(function() {
-    var message = new protos.Message()
-    message.setType(protos.MsgType.PLAYPAUSE)
+  // setInterval(function() {
+  //   var message = new protos.Message()
+  //   message.setType(protos.MsgType.PLAYPAUSE)
 
-    var message_buffer = Buffer.from(message.serializeBinary())
-    var length_buffer = Buffer.allocUnsafe(4)
-    length_buffer.writeUInt32BE(message_buffer.length)
+  //   var message_buffer = Buffer.from(message.serializeBinary())
+  //   var length_buffer = Buffer.allocUnsafe(4)
+  //   length_buffer.writeUInt32BE(message_buffer.length)
 
-    client.write(Buffer.concat([length_buffer, message_buffer]))
-  }, 5000)
-});
+  //   client.write(Buffer.concat([length_buffer, message_buffer]))
+  // }, 5000)
+})
+
+var message_buffer = new Buffer([])
 
 client.on('data', function(data) {
-  var length = data.readUInt32BE()
-  var message_buffer = data.slice(4, 4 + length)
+  message_buffer = Buffer.concat([message_buffer, data])
+  packet_length = message_buffer.readUInt32BE()
 
-  message = protos.Message.deserializeBinary(message_buffer)
-  console.log('Type : ' + message.getType())
-//
-  // message = protos.Message.deserializeBinary(data.slice(4, 4 + ))
-  // console.log(message.getType())
-  // if (message.getType() == protos.MsgType.KEEP_ALIVE)
-  //   client.write(new Buffer(message.serializeBinary()))
+  if (message_buffer.length - 4 < packet_length)
+    return
 
-  // client.destroy(); // kill client after server's response
-});
+  message = message_buffer.slice(4, 4 + packet_length)
+  message_buffer = message_buffer.slice(4 + packet_length)
 
+  var messageProto = protos.Message.deserializeBinary(message)
+  var messageObj = messageProto.toObject()
+  var msgType = getKeyByValue(protos.MsgType, messageObj.type)
+  console.log('Type : ', msgType)
+  console.log('Length : ', message_buffer.length - 4)
+
+  if (msgType == 'CURRENT_METAINFO') {
+    var title = messageObj.responseCurrentMetadata.songMetadata.title
+    var artist = messageObj.responseCurrentMetadata.songMetadata.artist
+    console.log(messageObj.responseCurrentMetadata.songMetadata.title)
+    mb.tray.setTitle(` ${title} - ${artist}`)
+  }
+})
 client.on('close', function() {
-  console.log('Connection closed');
-});
-
-///
+  console.log('Connection closed')
+})
 
 var mb = menubar({
   dir: __dirname,
@@ -60,9 +66,9 @@ var mb = menubar({
 })
 
 mb.on('ready', function ready () {
-  var i = 1
-  setInterval(function () {
-    mb.tray.setTitle(' Hello world '+ i++)
-  }, 1000)
+  console.log('Menubar ready')
 })
 
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value)
+}
