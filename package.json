@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "menubar": "^5.2.3"
+  },
+  "name": "clementine-menubar",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/narze/clementine-menubar",
+  "author": "Manassarn Manoonchai <manassarn@gmail.com>",
+  "license": "MIT"
+}
