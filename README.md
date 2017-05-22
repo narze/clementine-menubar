@@ -9,3 +9,15 @@ An [Electron](https://electron.atom.io) app to to view current song & control [C
 - [ ] Basic music controls
 - [ ] Keyboard shortcuts
 - [ ] Build macOS `.app`
+- [ ] Tests
+- [ ] Scrollable text / smaller font size to save menubar space
+- [ ] Show mini-player on click
+- [ ] And more!
+
+### Related Projects
+- [clementine](https://github.com/clementine-player/Clementine)
+- [electron](https://github.com/electron-userland/electron-prebuilt)
+- [menubar](https://github.com/maxogden/menubar)
+- [protobuf](https://github.com/google/protobuf)
+- [Currentsong (Forked)](https://github.com/narze/Currentsong)
+
