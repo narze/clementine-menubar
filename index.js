@@ -30,6 +30,12 @@ client.connect(5500, '127.0.0.1', function() {
   // }, 5000)
 })
 
+var meta = {
+  title: '',
+  artist: '',
+  position: '',
+}
+
 var message_buffer = new Buffer([])
 
 client.on('data', function(data) {
@@ -48,12 +54,22 @@ client.on('data', function(data) {
   console.log('Type : ', msgType)
   console.log('Length : ', message_buffer.length - 4)
 
-  if (msgType == 'CURRENT_METAINFO') {
-    var title = messageObj.responseCurrentMetadata.songMetadata.title
-    var artist = messageObj.responseCurrentMetadata.songMetadata.artist
-    console.log(messageObj.responseCurrentMetadata.songMetadata.title)
-    mb.tray.setTitle(` ${title} - ${artist}`)
+  switch (msgType) {
+    case 'CURRENT_METAINFO':
+      var title = messageObj.responseCurrentMetadata.songMetadata.title
+      var artist = messageObj.responseCurrentMetadata.songMetadata.artist
+      console.log(messageObj.responseCurrentMetadata.songMetadata.title)
+      meta.title = title
+      meta.artist = artist
+      break;
+    case 'UPDATE_TRACK_POSITION':
+      var position = messageObj.responseUpdateTrackPosition.position
+      meta.position = `${parseInt(position/60)}:${position%60}`
+      console.log(position)
+      break;
   }
+
+  mb.tray.setTitle(` ${meta.title} - ${meta.artist} | ${meta.position}`)
 })
 client.on('close', function() {
   console.log('Connection closed')
