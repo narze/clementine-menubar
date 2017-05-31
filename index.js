@@ -34,6 +34,7 @@ var meta = {
   title: '',
   artist: '',
   position: '',
+  rating: '',
 }
 
 var message_buffer = new Buffer([])
@@ -56,11 +57,12 @@ client.on('data', function(data) {
 
   switch (msgType) {
     case 'CURRENT_METAINFO':
-      var title = messageObj.responseCurrentMetadata.songMetadata.title
-      var artist = messageObj.responseCurrentMetadata.songMetadata.artist
-      console.log(messageObj.responseCurrentMetadata.songMetadata.title)
+      var songMetadata = messageObj.responseCurrentMetadata.songMetadata
+      var { title, artist, rating } = songMetadata
+
       meta.title = title
       meta.artist = artist
+      meta.rating = parseRating(rating)
       break;
     case 'UPDATE_TRACK_POSITION':
       var position = messageObj.responseUpdateTrackPosition.position
@@ -71,7 +73,7 @@ client.on('data', function(data) {
       break;
   }
 
-  mb.tray.setTitle(` ${meta.title} - ${meta.artist} | ${meta.position}`)
+  mb.tray.setTitle(` ${meta.title} - ${meta.artist} | ${meta.position} | ${meta.rating}`)
 })
 client.on('close', function() {
   console.log('Connection closed')
@@ -89,4 +91,43 @@ mb.on('ready', function ready () {
 
 function getKeyByValue(object, value) {
   return Object.keys(object).find(key => object[key] === value)
+}
+
+function parseRating(rating) {
+  var stars = '☆☆☆☆☆'
+
+  switch(rating.toFixed(1)) {
+    case '0.1':
+      stars = "½☆☆☆☆"
+      break
+    case '0.2':
+      stars = "★☆☆☆☆"
+      break
+    case '0.3':
+      stars = "★½☆☆☆"
+      break
+    case '0.4':
+      stars = "★★☆☆☆"
+      break
+    case '0.5':
+      stars = "★★½☆☆"
+      break
+    case '0.6':
+      stars = "★★★☆☆"
+      break
+    case '0.7':
+      stars = "★★★½☆"
+      break
+    case '0.8':
+      stars = "★★★★☆"
+      break
+    case '0.9':
+      stars = "★★★★½"
+      break
+    case '1.0':
+      stars = "★★★★★"
+      break
+  }
+
+  return stars
 }
