@@ -63,17 +63,19 @@ client.on('data', function(data) {
       meta.title = title
       meta.artist = artist
       meta.rating = parseRating(rating)
-      break;
+      break
     case 'UPDATE_TRACK_POSITION':
       var position = messageObj.responseUpdateTrackPosition.position
       var positionMinute = parseInt(position/60)
       var positionSecond = ('0' + position%60).slice(-2)
       meta.position = `${positionMinute}:${positionSecond}`
       console.log(position)
-      break;
+      break
   }
 
-  mb.tray.setTitle(` ${meta.title} - ${meta.artist} | ${meta.position} | ${meta.rating}`)
+  var truncatedArtist = truncate.apply(meta.artist, [20])
+  var truncatedTitle = truncate.apply(meta.title, [20])
+  mb.tray.setTitle(` ${truncatedTitle} - ${truncatedArtist} | ${meta.position} | ${meta.rating}`)
 })
 client.on('close', function() {
   console.log('Connection closed')
@@ -130,4 +132,12 @@ function parseRating(rating) {
   }
 
   return stars
+}
+
+function truncate(n, useWordBoundary=false) {
+  if (this.length <= n) { return this }
+  var subString = this.substr(0, n-1)
+  return (useWordBoundary
+    ? subString.substr(0, subString.lastIndexOf(' '))
+    : subString) + "..."
 }
