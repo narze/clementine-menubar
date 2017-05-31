@@ -64,7 +64,9 @@ client.on('data', function(data) {
       break;
     case 'UPDATE_TRACK_POSITION':
       var position = messageObj.responseUpdateTrackPosition.position
-      meta.position = `${parseInt(position/60)}:${position%60}`
+      var positionMinute = parseInt(position/60)
+      var positionSecond = ('0' + position%60).slice(-2)
+      meta.position = `${positionMinute}:${positionSecond}`
       console.log(position)
       break;
   }
